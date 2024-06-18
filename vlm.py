@@ -16,20 +16,25 @@ class LLMUtility:
                 print(m.name)
         self.llm = genai.GenerativeModel(model_name)
         self.prompt = f"""
-                  rate this drawing out of 10, also give good and bad features in 2 points each, what further could be improved
+                  The image contains a sketch on left and generated image corresponding to sketch on right seperated by a thick black line.
+                  rate this sketch and generated image out of 10, also give good and bad features in 2 points each, what further could be improved
                   follow below mentioned format
 
-                  RATING :
+                  SKETCH RATING :
+                  GEN IMAGE RATING : 
                   LOOKS LIKE : 
                   FEATURE ANALYSIS : 
                   """
 
     def get_rating(self, response):
-        score = response.split('\n')[0]
-        rating = score.split(":")[-1].split("/")[0].strip()
-        return rating
+        sketch_score = response.split('\n')[0]
+        gen_score = response.split('\n')[1]
+        sketch_rating = sketch_score.split(":")[-1].split("/")[0].strip()
+        gen_rating = gen_score.split(":")[-1].split("/")[0].strip()
+        return [sketch_score, gen_score]
 
     def get_response_score(self, image):
         response = self.llm.generate_content([self.prompt, image]).text
         rating = self.get_rating(response)
         return response, rating
+
